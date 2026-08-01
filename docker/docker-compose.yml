@@ -1,11 +1,27 @@
+# services:
+#   frontend:
+#     build:
+#       context: ../../ai-hmis-frontend
+#       dockerfile: frontend/Dockerfile
+#   backend:
+#     build:
+#       context: ../../aihmisbackend
+#       dockerfile: backend/Dockerfile
+
+# docker compose up --build
+
 services:
+
   frontend:
     build:
       context: ../../ai-hmis-frontend
-      dockerfile: frontend/Dockerfile
+      dockerfile: ./frontend/Dockerfile
+    image: ai-hmis-frontend:latest
+    container_name: ai-hmis-frontend
+
   backend:
     build:
       context: ../../aihmisbackend
-      dockerfile: backend/Dockerfile
-
-# docker compose up --build
+      dockerfile: ./backend/Dockerfile
+    image: ai-hmis-backend:latest
+    container_name: ai-hmis-backend
