@@ -4,7 +4,7 @@
 
 FROM node:18-alpine AS builder
 WORKDIR /app
-COPY --from=app . .
+COPY . .
 RUN npm install
 RUN npm run build -- --configuration production
 
@@ -17,7 +17,25 @@ FROM nginx:1.27-alpine
 
 COPY --from=builder /app/dist/ai-hmis-frontend/browser /usr/share/nginx/html
 
-COPY --from=nginx nginx.conf /etc/nginx/conf.d/default.conf
+RUN cat > /etc/nginx/conf.d/default.conf <<'EOF'
+server {
+
+    listen 80;
+
+    server_name _;
+
+    root /usr/share/nginx/html;
+
+    index index.html;
+
+    location / {
+
+        try_files $uri $uri/ /index.html;
+
+    }
+
+}
+EOF
 
 EXPOSE 80
 

@@ -16,17 +16,14 @@ if [ ! -d "$BACKEND_DIR" ]; then
   exit 1
 fi
 
-# Frontend: app source from sibling repo, nginx.conf from devops repo
-DOCKER_BUILDKIT=1 docker build \
+# Frontend: build context is the app repo, Dockerfile lives in devops repo
+docker build \
   -f docker/frontend/Dockerfile \
-  --build-context app="$FRONTEND_DIR" \
-  --build-context nginx=docker/frontend \
   -t ai-hmis-frontend:latest \
-  .
+  "$FRONTEND_DIR"
 
-# Backend: app source from sibling repo
-DOCKER_BUILDKIT=1 docker build \
+# Backend: build context is the app repo, Dockerfile lives in devops repo
+docker build \
   -f docker/backend/Dockerfile \
-  --build-context app="$BACKEND_DIR" \
   -t ai-hmis-backend:latest \
-  .
+  "$BACKEND_DIR"
