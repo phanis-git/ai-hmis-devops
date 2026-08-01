@@ -5,8 +5,8 @@ resource "aws_security_group_rule" "internet_to_frontend_http" {
   from_port         = 80
   to_port           = 80
   protocol          = "tcp"
-  cidr_blocks       = [aws_vpc.main.cidr_block]
-  security_group_id = data.aws_ssm_parameter.frontend.id
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = data.aws_ssm_parameter.frontend.value
   description = "Allowing internet to frontend via http"
 }
 # Rule 2
@@ -16,8 +16,8 @@ resource "aws_security_group_rule" "internet_to_frontend_https" {
   from_port         = 443
   to_port           = 443
   protocol          = "tcp"
-  cidr_blocks       = [aws_vpc.main.cidr_block]
-  security_group_id = data.aws_ssm_parameter.frontend.id
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = data.aws_ssm_parameter.frontend.value
   description = "Allowing internet to frontend via https"
 }
 
@@ -28,8 +28,8 @@ resource "aws_security_group_rule" "frontend_to_backend" {
   from_port         = 8080
   to_port           = 8080
   protocol          = "tcp"
-  cidr_blocks       = [aws_vpc.main.cidr_block]
-  security_group_id = data.aws_ssm_parameter.backend.id
+  source_security_group_id = data.aws_ssm_parameter.frontend.value
+  security_group_id = data.aws_ssm_parameter.backend.value
   description = "Allowing traffic from frontend to backend"
 }
 
@@ -40,8 +40,7 @@ resource "aws_security_group_rule" "backend_to_database" {
   from_port         = 3306
   to_port           = 3306
   protocol          = "tcp"
-  cidr_blocks       = [aws_vpc.main.cidr_block]
-  security_group_id = data.aws_ssm_parameter.database.id
+  source_security_group_id = data.aws_ssm_parameter.backend.value
+  security_group_id = data.aws_ssm_parameter.database.value
   description = "Allowing traffic from backend to database"
 }
-

@@ -165,3 +165,18 @@ resource "aws_route_table_association" "database" {
   subnet_id      =   aws_subnet.database[count.index].id
   route_table_id = aws_route_table.database.id
 }
+
+# SSM Parameters to share VPC info with other Terraform state folders
+resource "aws_ssm_parameter" "vpc_id" {
+  name  = "${var.project_name}-${var.env}-vpc-id"
+  type  = "String"
+  value = aws_vpc.main.id
+  tags  = local.common_tags
+}
+
+resource "aws_ssm_parameter" "vpc_cidr" {
+  name  = "${var.project_name}-${var.env}-vpc-cidr"
+  type  = "String"
+  value = aws_vpc.main.cidr_block
+  tags  = local.common_tags
+}
