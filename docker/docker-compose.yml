@@ -1,11 +1,11 @@
 services:
   frontend:
     build:
-      context: ../ai-hmis-frontend
-      dockerfile: ../ai-hmis-devops/docker/frontend/Dockerfile
+      context: ../../ai-hmis-frontend
+      dockerfile: frontend/Dockerfile
   backend:
     build:
-      context: ../aihmisbackend
-      dockerfile: ../ai-hmis-devops/docker/backend/Dockerfile
+      context: ../../aihmisbackend
+      dockerfile: backend/Dockerfile
 
 # docker compose up --build
