@@ -1,11 +1,17 @@
 #!/bin/bash
+set -e
 
-docker build \
--f docker/frontend/Dockerfile \
--t ai-hmis-frontend:latest \
-../ai-hmis-frontend
+# Frontend: app source from sibling repo, nginx.conf from devops repo
+DOCKER_BUILDKIT=1 docker build \
+  -f docker/frontend/Dockerfile \
+  --build-context app=../ai-hmis-frontend \
+  --build-context nginx=docker/frontend \
+  -t ai-hmis-frontend:latest \
+  .
 
-docker build \
--f docker/backend/Dockerfile \
--t ai-hmis-backend:latest \
-../aihmisbackend
+# Backend: app source from sibling repo
+DOCKER_BUILDKIT=1 docker build \
+  -f docker/backend/Dockerfile \
+  --build-context app=../aihmisbackend \
+  -t ai-hmis-backend:latest \
+  .

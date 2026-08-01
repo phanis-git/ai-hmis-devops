@@ -1,5 +1,5 @@
 variable "sg_names" {
-  type = list
+  type = list(string)
   default = ["frontend","backend","database"]
 }
 variable "project_name" {
