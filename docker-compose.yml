@@ -4,6 +4,9 @@ services:
     build:
       context: .
       dockerfile: docker/frontend/Dockerfile
+      additional_contexts:
+        app: ../ai-hmis-frontend
+        nginx: docker/frontend
     image: ai-hmis-frontend:latest
     container_name: ai-hmis-frontend
     ports:
@@ -13,6 +16,8 @@ services:
     build:
       context: .
       dockerfile: docker/backend/Dockerfile
+      additional_contexts:
+        app: ../aihmisbackend
     image: ai-hmis-backend:latest
     container_name: ai-hmis-backend
     ports:
