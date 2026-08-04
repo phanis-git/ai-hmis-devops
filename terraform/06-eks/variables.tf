@@ -5,15 +5,15 @@ variable "environment" {
 variable "project_name" {
   default = "ai-hmis"
 }
-variable "eks_cluster_role_arn" {
-  default = data.aws_iam_role.eks_cluster_role.arn
-}
+# variable "eks_cluster_role_arn" {
+#   default = data.aws_iam_role.eks_cluster_role.arn
+# }
 variable "node_role_arn" {
   default = ""
 }
 variable "private_subnet_ids" {
   default = ""
 }
-variable "eks_cluster_role_arn" {
-  default = data.aws_iam_role.eks_cluster_role.arn
-}
+# variable "eks_cluster_role_arn" {
+#   default = data.aws_iam_role.eks_cluster_role.arn
+# }
