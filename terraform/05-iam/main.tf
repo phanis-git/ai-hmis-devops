@@ -2,7 +2,7 @@
 # FOR EKS CLUSTER ROLE
 # =========== 
 resource "aws_iam_role" "eks_cluster_role" {
-  name = "${var.project_name}-${var.environment}-eks-cluster-role"
+  name = "${var.project_name}-${var.environment}-eks-cluster-role"   //ai-hmis-dev-eks-cluster-role
 
     assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -39,7 +39,7 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
 # ========
 
 resource "aws_iam_role" "eks_node_role" {
-  name = "${var.project_name}-${var.environment}-eks-node-role"
+  name = "${var.project_name}-${var.environment}-eks-node-role"  //ai-hmis-dev-eks-node-role
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [

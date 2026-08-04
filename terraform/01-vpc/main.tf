@@ -168,7 +168,7 @@ resource "aws_route_table_association" "database" {
 
 # SSM Parameters to share VPC info with other Terraform state folders
 resource "aws_ssm_parameter" "vpc_id" {
-  name  = "${var.project_name}-${var.env}-vpc-id"
+  name  = "${var.project_name}-${var.env}-vpc-id"  //ai-hmis-dev-vpc-id
   type  = "String"
   value = aws_vpc.main.id
   tags  = local.common_tags
@@ -179,4 +179,18 @@ resource "aws_ssm_parameter" "vpc_cidr" {
   type  = "String"
   value = aws_vpc.main.cidr_block
   tags  = local.common_tags
+}
+resource "aws_ssm_parameter" "private_subnet_ids" {
+  name  = "${var.project_name}-${var.env}-private-subnet-ids"
+  type  = "StringList"
+
+  value = join(",", aws_subnet.private[*].id)
+
+  tags = local.common_tags
+}
+resource "aws_ssm_parameter" "public_subnet_ids" {
+  name  = "${var.project_name}-${var.env}-public-subnet-ids"
+  type  = "StringList"
+  value = join(",", aws_subnet.public[*].id)
+  tags = local.common_tags
 }

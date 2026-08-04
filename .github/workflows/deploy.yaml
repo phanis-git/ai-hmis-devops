@@ -1,0 +1,51 @@
+name: Deploy to EKS
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Configure kubectl
+        run: |
+          aws eks update-kubeconfig \
+          --region ${{ secrets.AWS_REGION }} \
+          --name ai-hmis-dev-eks-cluster
+
+      - name: Verify Cluster
+        run: kubectl get nodes
+
+      - name: Deploy Namespace
+        run: kubectl apply -f kubernetes/namespace/namespace.yaml
+
+      - name: Deploy Database
+        run: kubectl apply -f kubernetes/database/
+
+      - name: Deploy Backend
+        run: kubectl apply -f kubernetes/backend/
+
+      - name: Deploy Frontend
+        run: kubectl apply -f kubernetes/frontend/
+
+      - name: Verify Pods
+        run: kubectl get pods -A
+
+      - name: Verify Services
+        run: kubectl get svc -A
