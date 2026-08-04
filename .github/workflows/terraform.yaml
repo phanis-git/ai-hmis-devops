@@ -1,6 +1,85 @@
+# name: Terraform CI/CD
+# on:
+#   workflow_dispatch:
+#   push:
+#     branches:
+#       - main
+#     paths:
+#       - 'terraform/**'
+
+#   pull_request:
+#     branches:
+#       - main
+#     paths:
+#       - 'terraform/**'
+
+# env:
+#   AWS_REGION: ${{ secrets.AWS_REGION }}
+
+# jobs:
+#   terraform:
+
+#     name: Terraform - ${{ matrix.folder }}
+
+#     runs-on: ubuntu-latest
+
+#     permissions:
+#       contents: read
+
+#     strategy:
+#       fail-fast: false
+#       matrix:
+#         folder:
+#           - terraform/01-vpc
+#           - terraform/02-security-groups
+#           - terraform/03-security-group-rules
+#           - terraform/04-ecr
+#           - terraform/05-iam
+#           - terraform/06-eks
+
+#     defaults:
+#       run:
+#         working-directory: ${{ matrix.folder }}
+
+#     steps:
+
+#       - name: Checkout Repository
+#         uses: actions/checkout@v4
+
+#       - name: Configure AWS Credentials
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: ${{ env.AWS_REGION }}
+
+#       - name: Setup Terraform
+#         uses: hashicorp/setup-terraform@v3
+
+#       - name: Terraform Init
+#         run: terraform init
+
+#       # - name: Terraform Format Check
+#       #   run: terraform fmt -check
+
+#       # - name: Terraform Validate
+#       #   run: terraform validate
+
+#       - name: Terraform Plan
+#         run: terraform plan
+
+#       # Uncomment only after testing
+#       - name: Terraform Apply
+#         if: github.ref == 'refs/heads/main'
+#         run: terraform apply -auto-approve
+
+
+
 name: Terraform CI/CD
+
 on:
   workflow_dispatch:
+
   push:
     branches:
       - main
@@ -17,58 +96,192 @@ env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
 
 jobs:
-  terraform:
 
-    name: Terraform - ${{ matrix.folder }}
+  terraform-vpc:
+    name: Terraform - 01-VPC
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    defaults:
+      run:
+        working-directory: terraform/01-vpc
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - run: terraform init
+      - run: terraform plan
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve
+
+
+  terraform-security-groups:
+    name: Terraform - 02-Security-Groups
+    needs: terraform-vpc
 
     runs-on: ubuntu-latest
 
     permissions:
       contents: read
 
-    strategy:
-      fail-fast: false
-      matrix:
-        folder:
-          - terraform/01-vpc
-          - terraform/02-security-groups
-          - terraform/03-security-group-rules
-          - terraform/04-ecr
-          - terraform/05-iam
-          - terraform/06-eks
-
     defaults:
       run:
-        working-directory: ${{ matrix.folder }}
+        working-directory: terraform/02-security-groups
 
     steps:
+      - uses: actions/checkout@v4
 
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v3
 
-      - name: Terraform Init
-        run: terraform init
+      - run: terraform init
+      - run: terraform plan
 
-      # - name: Terraform Format Check
-      #   run: terraform fmt -check
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve
 
-      # - name: Terraform Validate
-      #   run: terraform validate
 
-      - name: Terraform Plan
-        run: terraform plan
+  terraform-security-group-rules:
+    name: Terraform - 03-Security-Group-Rules
+    needs: terraform-security-groups
 
-      # Uncomment only after testing
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    defaults:
+      run:
+        working-directory: terraform/03-security-group-rules
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - run: terraform init
+      - run: terraform plan
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve
+
+
+  terraform-ecr:
+    name: Terraform - 04-ECR
+    needs: terraform-security-group-rules
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    defaults:
+      run:
+        working-directory: terraform/04-ecr
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - run: terraform init
+      - run: terraform plan
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve
+
+
+  terraform-iam:
+    name: Terraform - 05-IAM
+    needs: terraform-ecr
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    defaults:
+      run:
+        working-directory: terraform/05-iam
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - run: terraform init
+      - run: terraform plan
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve
+
+
+  terraform-eks:
+    name: Terraform - 06-EKS
+    needs: terraform-iam
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    defaults:
+      run:
+        working-directory: terraform/06-eks
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - run: terraform init
+      - run: terraform plan
+
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
         run: terraform apply -auto-approve
