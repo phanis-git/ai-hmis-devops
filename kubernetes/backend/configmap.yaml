@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: ai-hmis-namespace
+data:
+  SPRING_APPLICATION_NAME: aihmisbackend
+  SERVER_PORT: "8080"
+
+  SPRING_DATASOURCE_URL: jdbc:mysql://mysql-service:3306/ai_hmis
+  SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+
+  SPRING_JPA_HIBERNATE_DDL_AUTO: update
+  SPRING_JPA_SHOW_SQL: "true"
+  SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: "true"
+
+  LOGGING_LEVEL_ORG_HIBERNATE_SQL: DEBUG
+  LOGGING_LEVEL_ORG_HIBERNATE_ORM_JDBC_BIND: TRACE
+
+  GROQ_API_URL: https://api.groq.com/openai/v1/chat/completions
+  GROQ_MODEL: llama-3.1-8b-instant

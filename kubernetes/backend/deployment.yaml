@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-hmis-backend-deployment
+  namespace: ai-hmis-namespace 
+  labels:
+    app: ai-hmis-backend
+    project: ai-hmis
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ai-hmis-backend
+      project: ai-hmis
+  template:
+    metadata:
+      labels:
+        app: ai-hmis-backend
+        project: ai-hmis
+    spec:
+      containers:
+      - name: ai-hmis-backend
+        image: // need to put out backend image
+        envFrom: 
+          - configMapRef: 
+              name: backend-config
+          - secretRef: 
+              name: backend-secret
+
+        # Here we need to put our image from ecr or dockerhub
+        ports:
+        - containerPort: 8080
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "512Mi"  # 256 Mebibytes
+            cpu: "250m"      # 250 millicores (0.25 vCPU)
+          limits:
+            # memory: "300Mi"  # Hard cap; triggers OOM if crossed
+            memory: "900Mi"
+            cpu: "900m"
+
+
+
+      # 1. LIVENESS PROBE (Determines when to restart)
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 15  # Wait before checking the first time
+          periodSeconds: 10        # How often to check
+          timeoutSeconds: 2        # Timeout waiting for response
+          failureThreshold: 3      # Consecutive failures before restart
+          
+        # 2. READINESS PROBE (Determines when to send traffic)
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5   # Can check sooner than liveness
+          periodSeconds: 5         # Check more frequently for availability
+          timeoutSeconds: 2
+          failureThreshold: 3

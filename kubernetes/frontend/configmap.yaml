@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-nginx-config
+  namespace: ai-hmis-namespace
+data:
+  default.conf: |
+    server {
+        listen 80;
+        server_name _;
+
+        root /usr/share/nginx/html;
+        index index.html;
+
+        gzip on;
+        gzip_types
+            text/plain
+            text/css
+            application/json
+            application/javascript
+            application/xml+rss
+            application/xml
+            image/svg+xml;
+
+        location / {
+            try_files $uri $uri/ /index.html;
+        }
+
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf)$ {
+            expires 30d;
+            add_header Cache-Control "public";
+        }
+    }

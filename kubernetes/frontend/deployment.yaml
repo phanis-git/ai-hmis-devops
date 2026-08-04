@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-hmis-frontend-nginx-deployment
+  namespace: ai-hmis-namespace 
+  labels:
+    app: ai-hmis-frontend-nginx
+    project: ai-hmis
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ai-hmis-frontend-nginx
+      project: ai-hmis
+  template:
+    metadata:
+      labels:
+        app: ai-hmis-frontend-nginx
+        project: ai-hmis
+    spec:
+      containers:
+      - name: ai-hmis-frontend-nginx
+        image: nginx:1.27   
+        # Here we need to put our image from ecr or dockerhub
+        ports:
+        - containerPort: 80
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "150Mi"  # 256 Mebibytes
+            cpu: "250m"      # 250 millicores (0.25 vCPU)
+          limits:
+            memory: "300Mi"  # Hard cap; triggers OOM if crossed
+            cpu: "500m"
+
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d/default.conf
+          subPath: default.conf
+
+      volumes: 
+      - name: nginx-config
+        configMap:
+          name: frontend-nginx-config
+
+
+      # 1. LIVENESS PROBE (Determines when to restart)
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 15  # Wait before checking the first time
+          periodSeconds: 10        # How often to check
+          timeoutSeconds: 2        # Timeout waiting for response
+          failureThreshold: 3      # Consecutive failures before restart
+          
+        # 2. READINESS PROBE (Determines when to send traffic)
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5   # Can check sooner than liveness
+          periodSeconds: 5         # Check more frequently for availability
+          timeoutSeconds: 2
+          failureThreshold: 3
