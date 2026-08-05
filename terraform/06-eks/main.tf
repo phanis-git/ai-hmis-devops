@@ -34,7 +34,7 @@ resource "aws_eks_node_group" "aws_eks_managed_node_group" {
   capacity_type = "SPOT"
 
   instance_types = [
-    "t2.micro"
+    "t3.medium"
   ]
   disk_size = 20
   scaling_config {
