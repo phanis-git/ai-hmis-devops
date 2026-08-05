@@ -37,14 +37,7 @@ spec:
         - name: nginx-config
           mountPath: /etc/nginx/conf.d/default.conf
           subPath: default.conf
-
-      volumes: 
-      - name: nginx-config
-        configMap:
-          name: frontend-nginx-config
-
-
-      # 1. LIVENESS PROBE (Determines when to restart)
+        # 1. LIVENESS PROBE (Determines when to restart)
         livenessProbe:
           httpGet:
             path: /
@@ -63,3 +56,12 @@ spec:
           periodSeconds: 5         # Check more frequently for availability
           timeoutSeconds: 2
           failureThreshold: 3
+
+
+      volumes: 
+      - name: nginx-config
+        configMap:
+          name: frontend-nginx-config
+
+
+      
