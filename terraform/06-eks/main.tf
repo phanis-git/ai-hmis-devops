@@ -77,3 +77,11 @@ resource "aws_eks_access_policy_association" "github_actions_admin" {
     type = "cluster"
   }
 }
+resource "aws_ssm_parameter" "cluster_name" {
+
+  name  = "${var.project_name}-${var.environment}-eks-cluster-name"
+
+  type  = "String"
+
+  value = aws_eks_cluster.eks_cluster.name
+}
