@@ -42,7 +42,7 @@ jobs:
 
   terraform-eks-destroy:
     name: Destroy - 06-EKS
-
+    needs: terraform-eks-addons-destroy
     runs-on: ubuntu-latest
 
     permissions:
