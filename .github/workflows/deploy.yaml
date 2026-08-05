@@ -22,6 +22,10 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
+      
+      # 👇 Add this step
+      - name: Show Caller Identity
+        run: aws sts get-caller-identity
 
       - name: Configure kubectl
         run: |

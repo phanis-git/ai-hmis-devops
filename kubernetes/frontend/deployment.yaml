@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: ai-hmis-frontend-nginx
-        image: nginx:1.27   
+        image: 100024219463.dkr.ecr.us-east-1.amazonaws.com/ai-hmis/frontend:latest 
         # Here we need to put our image from ecr or dockerhub
         ports:
         - containerPort: 80

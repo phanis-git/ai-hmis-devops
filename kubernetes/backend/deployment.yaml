@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: ai-hmis-backend
-        image: // need to put out backend image
+        image: 100024219463.dkr.ecr.us-east-1.amazonaws.com/ai-hmis/backend:latest
         envFrom: 
           - configMapRef: 
               name: backend-config
