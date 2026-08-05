@@ -60,3 +60,20 @@ resource "aws_eks_node_group" "aws_eks_managed_node_group" {
     aws_eks_cluster.eks_cluster
   ]
 }
+
+resource "aws_eks_access_entry" "github_actions_user" {
+  cluster_name  = aws_eks_cluster.eks_cluster.name
+  principal_arn = "arn:aws:iam::100024219463:user/techphanikumar"
+  type          = "STANDARD"
+}
+
+resource "aws_eks_access_policy_association" "github_actions_admin" {
+  cluster_name  = aws_eks_cluster.eks_cluster.name
+  principal_arn = aws_eks_access_entry.github_actions_user.principal_arn
+
+  policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+
+  access_scope {
+    type = "cluster"
+  }
+}
