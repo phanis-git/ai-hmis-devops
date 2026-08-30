@@ -12,5 +12,6 @@ variable "env" {
 }
 variable "hosted_zone_id" {
     type = string
-  default = "Z10254772MB7SUW2Y2JSN"
+  default = "Z0429334289NWW6OVE67I"
+  
 }
