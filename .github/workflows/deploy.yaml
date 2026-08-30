@@ -48,8 +48,14 @@ jobs:
       - name: Deploy Frontend
         run: kubectl apply -f kubernetes/frontend/
 
+      - name: Deploy Ingress
+        run: kubectl apply -f kubernetes/ingress/
+
       - name: Verify Pods
         run: kubectl get pods -A
 
       - name: Verify Services
         run: kubectl get svc -A
+
+      - name: Verify Ingress 
+        run: kubectl get ingress -n ai-hmis-namespace

@@ -7,7 +7,8 @@ metadata:
     app: ai-hmis-frontend-nginx
     project: ai-hmis
 spec:
-  type: LoadBalancer
+  # type: LoadBalancer   as i used aws elastic load balancer controller installed in terraform 07-eks-addons i used ClusterIP
+  type: ClusterIP 
   selector:
     app: ai-hmis-frontend-nginx
     project: ai-hmis
