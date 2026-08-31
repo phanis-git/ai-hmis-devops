@@ -553,7 +553,6 @@ resource "kubernetes_service_account" "aws_load_balancer_controller" {
     namespace = "kube-system"
 
     annotations = {
-      # "eks.amazonaws.com/role-arn" = data.aws_iam_role.aws_load_balancer_controller_role_arn.value
       "eks.amazonaws.com/role-arn" = aws_iam_role.aws_load_balancer_controller.arn
     }
 
@@ -613,18 +612,6 @@ resource "helm_release" "aws_load_balancer_controller" {
       value = "aws-load-balancer-controller"
     }
   ]
-
-  # EKS Cluster Name
-
-  # values = {
-  #   clusterName               = var.eks_cluster_name
-  #   region                    = var.aws_region
-  #   vpcId                     = var.vpc_id
-  #   serviceAccount.create     = "false"
-  #   serviceAccount.name       = "aws-load-balancer-controller"
-  # }
-
-
   # Make Helm wait for ServiceAccount
 
   depends_on = [

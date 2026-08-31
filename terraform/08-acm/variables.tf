@@ -1,5 +1,4 @@
 variable "domain_name" {
-  type = string
   default = "devops-phani.fun"
 }
 variable "project_name" {

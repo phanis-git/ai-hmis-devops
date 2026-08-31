@@ -1,78 +1,3 @@
-# name: Terraform CI/CD
-# on:
-#   workflow_dispatch:
-#   push:
-#     branches:
-#       - main
-#     paths:
-#       - 'terraform/**'
-
-#   pull_request:
-#     branches:
-#       - main
-#     paths:
-#       - 'terraform/**'
-
-# env:
-#   AWS_REGION: ${{ secrets.AWS_REGION }}
-
-# jobs:
-#   terraform:
-
-#     name: Terraform - ${{ matrix.folder }}
-
-#     runs-on: ubuntu-latest
-
-#     permissions:
-#       contents: read
-
-#     strategy:
-#       fail-fast: false
-#       matrix:
-#         folder:
-#           - terraform/01-vpc
-#           - terraform/02-security-groups
-#           - terraform/03-security-group-rules
-#           - terraform/04-ecr
-#           - terraform/05-iam
-#           - terraform/06-eks
-
-#     defaults:
-#       run:
-#         working-directory: ${{ matrix.folder }}
-
-#     steps:
-
-#       - name: Checkout Repository
-#         uses: actions/checkout@v4
-
-#       - name: Configure AWS Credentials
-#         uses: aws-actions/configure-aws-credentials@v4
-#         with:
-#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           aws-region: ${{ env.AWS_REGION }}
-
-#       - name: Setup Terraform
-#         uses: hashicorp/setup-terraform@v3
-
-#       - name: Terraform Init
-#         run: terraform init
-
-#       # - name: Terraform Format Check
-#       #   run: terraform fmt -check
-
-#       # - name: Terraform Validate
-#       #   run: terraform validate
-
-#       - name: Terraform Plan
-#         run: terraform plan
-
-#       # Uncomment only after testing
-#       - name: Terraform Apply
-#         if: github.ref == 'refs/heads/main'
-#         run: terraform apply -auto-approve
-
 
 
 name: Terraform CI/CD
@@ -316,3 +241,157 @@ jobs:
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
         run: terraform apply -auto-approve
+
+
+  # after 07-eks-addons we need to create 08-acm
+  terraform-acm-aws-certificate-manager:
+    name: Terraform - 08-ACM-AWS-CERTIFICATE-MANAGER
+    needs: terraform-eks-addons
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    defaults:
+      run:
+        working-directory: terraform/08-acm
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - run: terraform init
+      - run: terraform plan
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve
+
+    # after running the above we get aws-acm-arn we need to put the value in ingress.yaml and 
+    # after running ingress we get the aws elb arn and we need to put it in 09-route53
+  
+  kubernetes-namespace:
+    name: Kubernetes namespace
+    needs: terraform-acm-aws-certificate-manager
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    defaults:
+      run:
+        working-directory: kubernetes/namespace
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Configure kubectl 
+        run: | 
+          aws eks update-kubeconfig \
+                 --region $AWS_REGION \ 
+                 --name "ai-hmis-dev-eks-cluster"
+                 
+# --name ${{ secrets.EKS_CLUSTER_NAME }}
+      - name: Verify Kubernetes Connection 
+        run: kubectl get nodes
+
+      - name: Apply Namespace
+        run: kubectl apply -f namespace.yaml
+
+  terraform-ingress:
+    name: Terraform - Ingress
+    needs: kubernetes-namespace
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    defaults:
+      run:
+        working-directory: kubernetes/ingress
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Configure kubectl
+        run: |
+          aws eks update-kubeconfig \
+            --region $AWS_REGION \
+            --name "ai-hmis-dev-eks-cluster"
+      - name: Verify Kubernetes Connection
+        run: kubectl get nodes
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - run: terraform init
+      - run: terraform plan
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve
+
+      - name: Check Ingress
+        if: github.ref == 'refs/heads/main'
+        run: |
+          kubectl get ingress ai-hmis-ingress \
+            -n ai-hmis-namespace
+
+ 
+
+  terraform-route53:
+    name: Terraform - 09-Route53
+    needs: terraform-ingress
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    defaults:
+      run:
+        working-directory: terraform/09-route53
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - run: terraform init
+      - run: terraform plan
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve
+
+    # after running the above we get aws-acm-arn we need to put the value in ingress.yaml and 
+    # after running ingress we get the aws elb arn and we need to put it in 09-route53

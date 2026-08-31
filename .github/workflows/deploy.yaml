@@ -36,8 +36,8 @@ jobs:
       - name: Verify Cluster
         run: kubectl get nodes
 
-      - name: Deploy Namespace
-        run: kubectl apply -f kubernetes/namespace/namespace.yaml
+      # - name: Deploy Namespace
+      #   run: kubectl apply -f kubernetes/namespace/namespace.yaml
 
       - name: Deploy Database
         run: kubectl apply -f kubernetes/database/
@@ -48,8 +48,8 @@ jobs:
       - name: Deploy Frontend
         run: kubectl apply -f kubernetes/frontend/
 
-      - name: Deploy Ingress
-        run: kubectl apply -f kubernetes/ingress/
+      # - name: Deploy Ingress
+      #   run: kubectl apply -f kubernetes/ingress/
 
       - name: Verify Pods
         run: kubectl get pods -A

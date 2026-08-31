@@ -1,0 +1,22 @@
+# Terraform-specific files and directories
+.terraform/                 # Terraform's working directory for provider binaries and modules
+.terraform.lock.hcl         # Lock file for providers and modules
+*.tfstate                   # Terraform state file (contains sensitive data)
+*.tfstate.*                 # Terraform state backup files
+*.tfvars                    # Terraform variable definition files (may contain sensitive data)
+*.tfvars.json               # JSON version of Terraform variable definition files
+.terraformrc                # Terraform runtime configuration file
+crash.log                   # Terraform crash logs
+
+# Editor-specific files (examples, adjust as needed)
+.vscode/                    # VS Code settings
+.idea/                      # IntelliJ/GoLand settings
+*.swp                       # Vim swap files
+*~                          # Emacs backup files
+
+
+# Terraform
+**/.terraform/
+**/.terraform.lock.hcl
+**/*.tfstate
+**/*.tfstate.*
