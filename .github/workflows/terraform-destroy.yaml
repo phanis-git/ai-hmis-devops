@@ -70,7 +70,7 @@ jobs:
         run: kubectl get nodes
 
       - name: Delete Kubernetes Ingress
-        run: kubectl delete ingress -f ingress.yaml -n ai-hmis-namespace
+        run: kubectl delete -f ingress.yaml
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
