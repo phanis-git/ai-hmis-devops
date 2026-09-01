@@ -334,10 +334,8 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Configure kubectl
-        run: |
-          aws eks update-kubeconfig \
-            --region $AWS_REGION \
-            --name "ai-hmis-dev-eks-cluster"
+        run: aws eks update-kubeconfig --region "$AWS_REGION" --name "ai-hmis-dev-eks-cluster"
+        
       - name: Verify Kubernetes Connection
         run: kubectl get nodes
 
