@@ -69,8 +69,8 @@ jobs:
       - name: Verify Kubernetes Connection
         run: kubectl get nodes
 
-      - name: Delete Kubernetes Ingress
-        run: kubectl delete -f ingress.yaml
+      # - name: Delete Kubernetes Ingress
+      #   run: kubectl delete -f ingress.yaml
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
