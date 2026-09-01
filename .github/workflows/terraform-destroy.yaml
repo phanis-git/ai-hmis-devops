@@ -42,7 +42,7 @@ jobs:
 
   terraform-ingress-destroy:
     name: Destroy - kubernetes-ingress
-
+    needs: terraform-route53-destroy
     runs-on: ubuntu-latest
 
     permissions:
@@ -83,7 +83,7 @@ jobs:
 
   terraform-acm-destroy:
     name: Destroy - 09-ACM
-
+    needs: terraform-ingress-destroy
     runs-on: ubuntu-latest
 
     permissions:
@@ -115,7 +115,7 @@ jobs:
 
   terraform-eks-addons-destroy:
     name: Destroy - 07-EKS-ADD-ONS
-
+    needs: terraform-acm-destroy
     runs-on: ubuntu-latest
 
     permissions:
